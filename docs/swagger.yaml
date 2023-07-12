@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: Pytube / FFMPEG - Downloader
+  description: |-
+    This API provides functionality to download YouTube videos and retrieve video formats and information. It allows users to download videos from YouTube by specifying the video URL, itag (format ID).
+    
+    Additionally, users can retrieve available video formats and basic information about a video by providing its URL.
+    
+    This API is useful for applications or services that require video downloading capabilities or need to display detailed information about YouTube videos, such as available formats, titles, and thumbnails.
+  contact:
+    email: selemskr@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:5000/
+tags:
+  - name: api
+    description: Download youtube video
+paths:
+  /api/receive_url:
+    post:
+      tags:
+        - api
+      summary: Find data from URL
+      description: Retrieves video formats and information based on the provided URL.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: The URL of the video.
+        required: true
+      responses:
+        '200':
+          description: Video formats and information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/receive'          
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+        
+  /api/download:
+    post:
+      tags:
+        - api
+      summary: Downloads the video.
+      description: Downloads a video based on the provided URL, itag.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/download'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/download'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/download'
+        required: true
+      responses:
+        '200':
+          description: The video file to download.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+components:
+  schemas:
+    download:
+      required:
+        - url
+        - itag
+        - mime_type
+      type: object
+      properties:
+        url:
+          type: string
+          description: The URL of the video to download.
+          example: https://youtu.be/MV_3Dpw-BRY
+        itag:
+          type: integer
+          description: The itag (format ID) of the video to download.
+          format: int64
+          example: 140
+    receive:
+      required:
+        - url
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message.
+        url:
+          type: string
+          description: The URL of the video.
+          example: https://youtu.be/MV_3Dpw-BRY
+        video_format:
+          type: array
+          items:
+              type: object
+              properties:
+                itag:
+                  type: string
+                  description: The itag (format ID) of the video.
+                mime_type:
+                   type: string
+                   description: The MIME type of the video.
+                resolution:
+                  type: string
+                  description: The resolution of the video.
+                fps:
+                  type: number
+                  description: The frames per second of the video.
+                progressive:
+                  type: boolean
+                  description: Indicates if the video is progressive.
+                type:
+                  type: string
+                  description: The type of the video.
+                codecs:
+                  type: string
+                  description: The codecs used in the video.
+                abr:
+                  type: string
+                  description: The audio bitrate of the video.
+        video_infos:
+          type: array
+          items:
+            type: object
+            properties:
+              Title:
+                type: string
+                description: The title of the video.
+              ThumbnailUrl:
+                type: string
+                description: The URL of the video thumbnail.
+          

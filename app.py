@@ -5,9 +5,6 @@ from myfuncs import get_video_formats, download_video, get_video_info
 app = Flask(__name__)
 CORS(
     app,
-    methods=["POST"],
-    supports_credentials=True,
-    expose_headers="Authorization",
 )
 
 
@@ -24,33 +21,29 @@ def hello_world():
 def download():
     """
     Route handler for the "/api/download" endpoint.
-    Downloads a video based on the provided URL, itag, and mime_type.
+    Downloads a video based on the provided URL and itag.
     """
     data = request.get_json()
     print(data)
 
     if "url" not in data or not data["url"] or not data["itag"]:
-        response = {"message": "Url ou itag manquante dans les données"}
+        response = {"message": "Url or itag missing in data"}
         return jsonify(response), 400
 
     url = data["url"]
     itag = data["itag"]
-    mime_type = data["mime_type"]
 
     try:
         file_buffer = download_video(url, itag)
         file_buffer.seek(0)
 
         response = make_response(file_buffer.read())
-        response.headers[
-            "Content-Disposition"
-        ] = f"attachment; filename=video.{mime_type}"
 
         return response
 
     except Exception as e:
-        print("Erreur lors du téléchargement de la vidéo:", e)
-        response = {"message": "Erreur lors du téléchargement de la vidéo"}
+        print("Error downloading video:", e)
+        response = {"message": "Error downloading video:"}
         return jsonify(response), 500
 
 
@@ -63,21 +56,27 @@ def receive_url():
     data = request.get_json()
 
     if "url" not in data or not data["url"]:
-        response = {"message": "URL non fournie"}
+        response = {"message": "URL not provided"}
         return jsonify(response), 400
 
     url = data["url"]
 
-    formats = get_video_formats(url)
-    infos = get_video_info(url)
+    try:
+        formats = get_video_formats(url)
+        infos = get_video_info(url)
 
-    response = {
-        "message": "URL reçue avec succès",
-        "url": url,
-        "video_format": formats,
-        "video_infos": infos,
-    }
-    return jsonify(response), 200
+        response = {
+            "message": "URL successfully received",
+            "url": url,
+            "video_format": formats,
+            "video_infos": infos,
+        }
+        return jsonify(response), 200
+
+    except Exception as e:
+        print("Error retrieving video formats and info:", e)
+        response = {"message": "Error retrieving video formats and info"}
+        return jsonify(response), 500
 
 
 if __name__ == "__main__":
