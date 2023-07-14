@@ -70,9 +70,9 @@ def download_video(url, itag):
         with open(output_file_path, "rb") as output_file:
             file_buffer = BytesIO(output_file.read())
 
-        return file_buffer
+        return file_buffer, mime_type
     else:
-        return file_buffer
+        return file_buffer, mime_type
 
 
 def get_video_info(url):
@@ -86,7 +86,7 @@ def get_video_info(url):
         list: A list containing a dictionary with the title and thumbnail URL of the video.
     """
     yt = YouTube(url)
-    return [{"Title": yt.title, "ThumbnailUrl": yt.thumbnail_url}]
+    return {"Title": yt.title, "ThumbnailUrl": yt.thumbnail_url}
 
 
 def get_video_formats(url):

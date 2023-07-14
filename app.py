@@ -34,10 +34,16 @@ def download():
     itag = data["itag"]
 
     try:
-        file_buffer = download_video(url, itag)
+        file_buffer, mime_type = download_video(url, itag)
         file_buffer.seek(0)
 
+        video_info = get_video_info(url)
+        title = video_info["Title"].replace(" ", "-")
+
         response = make_response(file_buffer.read())
+        response.headers[
+            "Content-Disposition"
+        ] = f"attachment; filename={title}.{mime_type}"
 
         return response
 
@@ -75,7 +81,7 @@ def receive_url():
 
     except Exception as e:
         print("Error retrieving video formats and info:", e)
-        response = {"message": "Error retrieving video formats and info"}
+        response = {"message": f"Error retrieving video formats and info: {e}"}
         return jsonify(response), 500
 
 
