@@ -61,7 +61,7 @@ Request for `/api/download`:
 
 6. Now lets run our Flask api :
    ```shell
-   pip install -r requirements.txt
+   flask --app app run
    ```
 7. Access http://localhost:5000 in your browser.
 
